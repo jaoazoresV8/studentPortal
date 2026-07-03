@@ -4,7 +4,7 @@
     </x-slot>
 
     <x-slot name="actions">
-        <button onclick="window.print()" class="bg-brand-blue text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-opacity-90 transition-all flex items-center shadow-md">
+        <button onclick="window.print()" class="no-print bg-brand-blue text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-opacity-90 transition-all flex items-center shadow-md">
             <svg class="w-3 h-3 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
             Print Report
         </button>
@@ -160,16 +160,40 @@
 
     <style>
         @media print {
-            aside, header, .no-print, [name="actions"] {
+            aside, header, footer, .no-print, [name="actions"] {
                 display: none !important;
+            }
+            body, html {
+                height: auto !important;
+                overflow: visible !important;
+                background-color: white !important;
             }
             main {
                 margin-left: 0 !important;
                 padding: 0 !important;
+                overflow: visible !important;
+                height: auto !important;
+                display: block !important;
+            }
+            #pjax-container {
+                overflow: visible !important;
+                height: auto !important;
             }
             .max-w-7xl {
                 max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
-        </div>
+            .grid {
+                display: block !important;
+            }
+            .bg-white {
+                box-shadow: none !important;
+                border: 1px solid #eee !important;
+                margin-bottom: 20px !important;
+                break-inside: avoid;
+            }
+        }
     </style>
 </x-app-layout>

@@ -5,7 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ (isset($header) ? strip_tags($header) . ' | ' : '') . config('app.name', 'CCDI Student Portal') }}</title>
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{{ asset('ccdi_logo.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -35,6 +38,7 @@
     <body class="antialiased text-gray-800"
           x-data="{
             sidebarOpen: false,
+            sidebarMinimized: localStorage.getItem('sidebar-minimized') === 'true',
             calendarOpen: {{ request()->routeIs('calendar.*') ? 'true' : 'false' }},
             announcementsOpen: false,
             accessibilityOpen: false,
@@ -42,7 +46,11 @@
           }"
           :class="currentFont">
         @php
-            $systemSettings = \App\Models\Setting::all()->pluck('value', 'key');
+            // Cache settings to avoid redundant queries across multiple components
+            $systemSettings = \Illuminate\Support\Facades\Cache::remember('system_settings', 3600, function() {
+                return \App\Models\Setting::pluck('value', 'key')->toArray();
+            });
+
             $sysName = $systemSettings['system_name'] ?? 'Computer Communication Development Institute';
             $sysLogo = $systemSettings['system_logo'] ?? 'ccdi_logo.png';
             $logoUrl = ($sysLogo === 'ccdi_logo.png') ? asset('ccdi_logo.png') : asset('storage/'.$sysLogo);
@@ -62,16 +70,16 @@
                         <div class="flex items-center">
                             <img src="{{ asset('ccdi_logo.png') }}" class="h-14 w-auto object-contain transform hover:scale-110 transition-transform cursor-pointer">
                         </div>
-                        <div class="border-l-2 border-white border-opacity-40 ml-4 pl-4 py-1 flex items-center">
+                        <div class="border-l-2 border-white border-opacity-40 ml-4 pl-5 py-1 flex items-center min-w-0">
                             <div class="brand-text uppercase leading-none">
-                                <div class="font-black text-lg md:text-2xl tracking-tighter" style="color: #012b6e; -webkit-text-stroke: 1px white; text-shadow: 1px 1px 0px rgba(0,0,0,0.2);">
-                                    {{ $sysName }}
+                                <div class="font-black text-[14px] md:text-2xl lg:text-3xl xl:text-4xl tracking-tighter" style="color: #012b6e; -webkit-text-stroke: 1.2px white; text-shadow: 1px 1px 0px rgba(0,0,0,0.2);">
+                                    {{ $sysName ?? 'Computer Communication Development Institute' }}
                                 </div>
                             </div>
                         </div>
                 </div>
 
-                <div class="flex items-center space-x-5">
+                <div class="flex items-center space-x-2 sm:space-x-5">
                     <!-- Notifications -->
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" class="relative hover:bg-white hover:bg-opacity-10 p-2 rounded-full transition-all">
@@ -121,17 +129,19 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center space-x-3 border-l border-white border-opacity-20 pl-5">
-                        <div class="text-right hidden sm:block">
+                        <div class="flex items-center space-x-2 md:space-x-3 border-l border-white border-opacity-20 pl-3 md:pl-5">
+                        <div class="text-right hidden md:block">
                             <div class="text-xs font-bold">{{ Auth::user()->name }}</div>
                             <div class="text-[9px] opacity-70 uppercase font-bold tracking-widest">{{ Auth::user()->role }}</div>
                         </div>
-                        <div class="relative" x-data="{ open: false }">
-                            @if(Auth::user()->profile_picture)
-                                <img @click="open = !open" src="{{ asset('storage/'.Auth::user()->profile_picture) }}" class="w-10 h-10 rounded-full border-2 border-white cursor-pointer hover:scale-105 transition-transform shadow-sm object-cover">
-                            @else
-                                <img @click="open = !open" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=012b6e&color=fff" class="w-10 h-10 rounded-full border-2 border-white cursor-pointer hover:scale-105 transition-transform shadow-sm">
-                            @endif
+                        <div class="relative flex-shrink-0 h-9 w-9 md:h-11 md:w-11" x-data="{ open: false }">
+                            <div class="h-full w-full rounded-full border-2 border-white shadow-sm overflow-hidden cursor-pointer hover:scale-105 transition-transform">
+                                @if(Auth::user()->profile_picture)
+                                    <img @click="open = !open" src="{{ asset('storage/'.Auth::user()->profile_picture) }}" class="h-full w-full object-cover">
+                                @else
+                                    <img @click="open = !open" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=012b6e&color=fff" class="h-full w-full object-cover">
+                                @endif
+                            </div>
                             <div x-show="open" @click.away="open = false" class="absolute right-0 mt-3 w-48 bg-white rounded-md shadow-xl py-2 z-[60] border text-gray-700" x-cloak x-transition>
                                 <div class="px-4 py-2 border-b mb-1">
                                     <p class="text-xs font-bold">{{ Auth::user()->name }}</p>
@@ -148,20 +158,38 @@
                 </div>
             </header>
 
-            <div class="flex flex-1 overflow-hidden">
+            <div class="flex flex-1 overflow-hidden relative">
                 <!-- Sidebar -->
                 <aside
-                    class="w-64 flex-shrink-0 fixed lg:static inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:block bg-brand-blue"
-                    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+                    class="flex-shrink-0 fixed lg:static left-0 bottom-0 z-[60] transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:block bg-brand-blue"
+                    :class="{
+                        'translate-x-0': sidebarOpen,
+                        '-translate-x-full': !sidebarOpen,
+                        'w-64': !sidebarMinimized,
+                        'w-20': sidebarMinimized,
+                        'top-20': true, /* Start below 80px navbar */
+                        'lg:top-0': true /* Full height on desktop */
+                    }"
                 >
                     @include('layouts.sidebar')
                 </aside>
+
+                <!-- Sidebar Toggle Arrow (Center Edge) -->
+                <button
+                    @click="sidebarMinimized = !sidebarMinimized; localStorage.setItem('sidebar-minimized', sidebarMinimized)"
+                    class="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 z-50 bg-brand-teal text-white p-1 rounded-r-md shadow-md transition-all duration-300 hover:bg-opacity-90 focus:outline-none"
+                    :style="sidebarMinimized ? 'left: 80px' : 'left: 256px'"
+                >
+                    <svg class="w-5 h-5 transition-transform duration-300" :class="sidebarMinimized ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
 
                 <!-- Mobile Overlay -->
                 <div
                     x-show="sidebarOpen"
                     @click="sidebarOpen = false"
-                    class="fixed inset-0 bg-black bg-opacity-60 z-30 lg:hidden"
+                    class="fixed inset-0 bg-black bg-opacity-60 z-50 lg:hidden"
                     x-transition:enter="transition opacity-100 ease-out duration-300"
                     x-transition:enter-start="opacity-0"
                     x-transition:enter-end="opacity-100"
@@ -172,8 +200,8 @@
                 ></div>
 
                 <!-- Page Content -->
-                <main class="flex-1 overflow-y-auto bg-[#f4f7fa] flex flex-col transition-all duration-300" id="pjax-container">
-                    <div class="p-8 max-w-[1600px] flex-1">
+                <main class="flex-1 overflow-y-auto bg-[#f4f7fa] flex flex-col" id="pjax-container">
+                    <div class="p-4 md:p-8 max-w-[1600px] flex-1">
                         <!-- Content Header -->
                         @if(!isset($hideHeader))
                             <div class="flex justify-between items-center mb-8">
@@ -266,12 +294,36 @@
         </div>
 
         <script>
+            // Configure PJAX for speed
+            $.pjax.defaults.timeout = 10000; // 10s timeout to prevent fallback reloads
+
             $(document).pjax('a:not([data-pjax="false"])', '#pjax-container');
 
             $(document).on('pjax:start', function() {
                 $('#pjax-container').addClass('pjax-loading');
             });
-            // ... (rest of scripts)
+
+            $(document).on('pjax:end', function() {
+                $('#pjax-container').removeClass('pjax-loading');
+                // Re-initialize any components if needed after pjax load
+            });
+
+            $(document).on('pjax:error', function(event, xhr, textStatus, error, options) {
+                // Optional: handle errors or timeout reloads
+                console.warn('Pjax Error:', error);
+            });
+
+            // Global Search Shortcut (/)
+            $(document).on('keydown', function(e) {
+                // If user presses '/' and isn't currently typing in an input/textarea
+                if (e.key === '/' && !$(e.target).is('input, textarea')) {
+                    const searchInput = $('input[placeholder*="search"]').first();
+                    if (searchInput.length) {
+                        e.preventDefault();
+                        searchInput.focus();
+                    }
+                }
+            });
         </script>
 
         <!-- Accessibility Modal -->

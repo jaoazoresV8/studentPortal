@@ -61,6 +61,11 @@ Route::middleware('auth')->group(function () {
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
 
+    // Announcement Routes
+    Route::get('announcements', function() {
+        return view('announcements.index');
+    })->name('announcements.index');
+
     // Calendar Routes
     Route::get('calendar', [App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
 

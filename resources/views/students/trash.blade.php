@@ -1,11 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Student Trash Bin') }}
-            </h2>
-            <a href="{{ route('students.index') }}" class="text-sm text-blue-600 hover:underline">Back to Students</a>
-        </div>
+        Student Trash Bin
+    </x-slot>
+
+    <x-slot name="actions">
+        <a href="{{ route('students.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 transition ease-in-out duration-150">
+            Back to Students
+        </a>
     </x-slot>
 
     <div class="py-12">

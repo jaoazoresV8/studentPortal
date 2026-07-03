@@ -68,7 +68,7 @@
                     {{ $item['content'] }}
                 </p>
                 <div class="mt-3 flex justify-end">
-                    <button class="text-[9px] font-black text-brand-blue uppercase hover:underline">Read more</button>
+                    <a href="{{ route('announcements.index') }}" class="text-[9px] font-black text-brand-blue uppercase hover:underline">Read more</a>
                 </div>
             </div>
         @endforeach

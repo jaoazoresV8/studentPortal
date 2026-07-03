@@ -18,6 +18,19 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        // This ensures the email is sent via the notification system.
+        // To make it truly "1 sec" fast, make sure your QUEUE_CONNECTION is NOT 'sync' in .env
+        $this->notify(new \Illuminate\Auth\Notifications\ResetPassword($token));
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
