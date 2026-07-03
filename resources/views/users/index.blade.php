@@ -10,12 +10,6 @@
     </x-slot>
 
     <div class="max-w-7xl mx-auto">
-        @if(session('success'))
-            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative text-sm">
-                {{ session('success') }}
-            </div>
-        @endif
-
         <div class="bg-white rounded-lg shadow-sm border border-gray-100">
             <div class="p-6 border-b border-gray-100">
                 <form action="{{ route('users.index') }}" method="GET" class="flex flex-col md:flex-row gap-4">
