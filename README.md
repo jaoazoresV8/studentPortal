@@ -1,6 +1,6 @@
-===========================================
+
 CCDI STUDENT PORTAL - QUICK SETUP
-===========================================
+
 
 
 1. Install dependencies
