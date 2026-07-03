@@ -346,7 +346,7 @@
                                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                             </svg>
                         </div>
-                        <input type="email" id="email" name="email" placeholder="Username" value="{{ old('email') }}" required autofocus>
+                        <input type="email" id="email" name="email" placeholder="email" value="{{ old('email') }}" required autofocus>
                     </div>
                     @error('email')
                         <p class="error-message">{{ $message }}</p>
@@ -361,7 +361,7 @@
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <input type="password" id="password" name="password" placeholder="Password" required>
+                        <input type="password" id="password" name="password" placeholder="password" required>
                     </div>
                     @error('password')
                         <p class="error-message">{{ $message }}</p>

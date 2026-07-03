@@ -25,6 +25,9 @@ class SettingsController extends Controller
         Setting::updateOrCreate(['key' => 'system_name'], ['value' => $request->system_name]);
         Setting::updateOrCreate(['key' => 'academic_year'], ['value' => $request->academic_year]);
 
+        // Clear the settings cache so the navbar updates immediately
+        \Illuminate\Support\Facades\Cache::forget('system_settings');
+
         if ($request->hasFile('system_logo')) {
             // Delete old logo if it exists and is not the default
             $oldLogo = Setting::where('key', 'system_logo')->first()?->value;

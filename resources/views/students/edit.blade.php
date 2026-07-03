@@ -79,6 +79,13 @@
                             <input id="profile_picture" type="file" name="profile_picture" class="block mt-1 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
                             <x-input-error :messages="$errors->get('profile_picture')" class="mt-2" />
                         </div>
+
+                        <!-- Change Password -->
+                        <div>
+                            <x-input-label for="password" :value="__('Change Password (Leave blank to keep current)')" />
+                            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" autocomplete="new-password" placeholder="New password (optional)" />
+                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                        </div>
                     </div>
 
                     <div class="flex items-center justify-end mt-8">

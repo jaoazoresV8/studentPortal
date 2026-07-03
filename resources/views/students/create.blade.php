@@ -3,7 +3,35 @@
         Add New Student
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="{
+        firstName: '',
+        lastName: '',
+        studentNumber: '',
+        password: '',
+        year: '{{ date('Y') }}',
+        manualPassword: false,
+        manualStudentNumber: false,
+        init() {
+            this.generateStudentNumber();
+        },
+        generateStudentNumber() {
+            if (!this.manualStudentNumber) {
+                const random = Math.floor(1000 + Math.random() * 9000);
+                this.studentNumber = this.year + '-' + random;
+            }
+        },
+        updatePassword() {
+            if (!this.manualPassword) {
+                let cleanFirst = this.firstName.replace(/\s+/g, '');
+                let cleanLast = this.lastName.replace(/\s+/g, '');
+                if (cleanFirst || cleanLast) {
+                    this.password = 'ccdi@' + this.year + cleanLast + cleanFirst;
+                } else {
+                    this.password = '';
+                }
+            }
+        }
+    }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <form action="{{ route('students.store') }}" method="POST" enctype="multipart/form-data">
@@ -13,7 +41,7 @@
                         <!-- Student Number -->
                         <div>
                             <x-input-label for="student_number" :value="__('Student Number')" />
-                            <x-text-input id="student_number" class="block mt-1 w-full" type="text" name="student_number" :value="old('student_number')" required autofocus />
+                            <x-text-input id="student_number" class="block mt-1 w-full" type="text" name="student_number" x-model="studentNumber" @input="manualStudentNumber = true" required autofocus />
                             <x-input-error :messages="$errors->get('student_number')" class="mt-2" />
                         </div>
 
@@ -32,14 +60,14 @@
                         <!-- First Name -->
                         <div>
                             <x-input-label for="first_name" :value="__('First Name')" />
-                            <x-text-input id="first_name" class="block mt-1 w-full" type="text" name="first_name" :value="old('first_name')" required />
+                            <x-text-input id="first_name" class="block mt-1 w-full" type="text" name="first_name" x-model="firstName" @input="updatePassword()" required />
                             <x-input-error :messages="$errors->get('first_name')" class="mt-2" />
                         </div>
 
                         <!-- Last Name -->
                         <div>
                             <x-input-label for="last_name" :value="__('Last Name')" />
-                            <x-text-input id="last_name" class="block mt-1 w-full" type="text" name="last_name" :value="old('last_name')" required />
+                            <x-text-input id="last_name" class="block mt-1 w-full" type="text" name="last_name" x-model="lastName" @input="updatePassword()" required />
                             <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
                         </div>
 
@@ -73,6 +101,13 @@
                             <x-input-label for="profile_picture" :value="__('Profile Picture')" />
                             <input id="profile_picture" type="file" name="profile_picture" class="block mt-1 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
                             <x-input-error :messages="$errors->get('profile_picture')" class="mt-2" />
+                        </div>
+
+                        <!-- Password -->
+                        <div>
+                            <x-input-label for="password" :value="__('Account Password')" />
+                            <x-text-input id="password" class="block mt-1 w-full" type="text" name="password" x-model="password" @input="manualPassword = true" required autocomplete="new-password" placeholder="Will be generated automatically" />
+                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
                         </div>
                     </div>
 
